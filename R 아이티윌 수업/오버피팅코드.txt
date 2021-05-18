@@ -1,0 +1,44 @@
+
+# 데이터 로드
+bi <- read.csv("binary.csv")
+head(bi)
+str(bi)
+
+# 종속변수를 factor형으로 변환
+bi$admit <- factor(bi$admit,, labels = c("Y", "N"))
+str(bi)
+
+
+# 커널 변경
+library(e1071)
+library(vcd)
+a<-c()
+b<-c()
+c<-c()
+d<-c()
+
+#  코드 돌리는데 시간 오래 걸립니다. 
+for(i in c(1:130)){
+for (j in seq(1,9,0.1)){
+support <- svm(admit~., data=bi, type = "C-classification",
+               kernel = "radial",
+               cost = i, gamma = j)
+
+pred <- predict(support, bi)
+
+tab <- table(Predicted=pred, Actual = bi$admit)
+# tab
+
+t<-sum(diag(tab))/sum(tab)
+k<-Kappa( table( bi$admit, pred)  )
+
+a<- append(a,i)
+b<- append(b,j)
+c<- append(c,t)
+d<- append(d,k$Unweighted[1])
+
+}}
+
+result <- data.frame(cost=a,gamma=b,accu=c,kappa=d)
+View(result)
+View(result[result$accu==max(result$accu)&result$kappa==max(result$kappa),])
